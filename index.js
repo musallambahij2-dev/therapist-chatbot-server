@@ -15,7 +15,7 @@ const client = new OpenAI({
 // Endpoint App Lab will call
 app.post("/therapist", async (req, res) => {
   try {
-    const userMessage = req.body.message || "";
+    const userMessage = req.query.message || "";
 
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
@@ -23,9 +23,8 @@ app.post("/therapist", async (req, res) => {
         {
           role: "system",
           content:
-            "You are a kind, supportive, simple-words therapist-style chatbot for teenagers. " +
-            "Use gentle language, ask helpful questions, avoid medical/medication advice, " +
-            "and always suggest talking to a trusted adult or professional if things sound serious or unsafe."
+            "You are a kind, supportive, simple words therapist-style chatbot for teenagers. " +
+            "Avoid medical advice and suggest talking to a trusted adult if things are serious."
         },
         {
           role: "user",
@@ -36,15 +35,12 @@ app.post("/therapist", async (req, res) => {
 
     const text =
       response.output[0].content[0].text.value ||
-      "I’m here and listening. Can you tell me a bit more about how you feel?";
+      "I'm here and listening. Can you tell me more?";
 
     res.json({ reply: text });
   } catch (err) {
-    console.error("Error in /therapist endpoint:", err);
-    res.status(500).json({
-      reply:
-        "Sorry, something went wrong on my side. Please try again later or talk to a trusted adult."
-    });
+    console.error(err);
+    res.status(500).json({ reply: "Error. Please try again." });
   }
 });
 
@@ -53,3 +49,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Therapist chatbot server running on port " + PORT);
 });
+
